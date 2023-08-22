@@ -96,7 +96,7 @@ impl Connectivity for WiFi {
       let mut last_signal_level = String::from("");
       for line in lines {
         if line == "" {
-          if current_ssid.ssid != "" {
+          if current_ssid.mac != "" {
             available_wifis.push(current_ssid.clone());
           }
 
@@ -121,27 +121,41 @@ impl Connectivity for WiFi {
         if first == "SSID" { //SSID 1 : MKM
           parts.next(); //ssid_no
           parts.next(); //colon symbols
-          current_ssid.ssid = parts.next().unwrap().to_string();
+          if let Some(temp_ssid) = parts.next() {
+            current_ssid.ssid = temp_ssid.to_string();
+          }
         } else if first == "Network" { //Network type            : Infrastructure
           continue;
         } else if first == "Authentication" { //Authentication          : WPA2-Personal
           parts.next(); //colon symbols
-          current_ssid.security = parts.next().unwrap().to_string();
+          if let Some(temp_security) = parts.next() {
+            current_ssid.security = temp_security.to_string();
+          }
         } else if first == "Encryption" { //Encryption              : CCMP
           continue;
         } else if first == "BSSID" {
           parts.next(); //ssid_no
           parts.next(); //colon symbols
-          last_mac = parts.next().unwrap().to_string();
+          if let Some(temp_mac) = parts.next() {
+            last_mac = temp_mac.to_string();
+          } else {
+            last_mac = String::from("");
+          }
         } else if first == "Signal" { //Signal             : 72%
           parts.next(); //colon symbols
-          let temp_signal = parts.next().unwrap().to_string();
-          last_signal_level = temp_signal[..temp_signal.len() - 1].to_string();
+          if let Some(temp_signal) = parts.next() {
+            last_signal_level = temp_signal[..temp_signal.len() - 1].to_string();
+          } else {
+            last_signal_level = String::from("0");
+          }
         } else if first == "Radio" { //Radio type         : 802.11ac
           continue;
         } else if first == "Channel" { //Channel            : 10
           parts.next(); //colon symbols
-          let last_channel = parts.next().unwrap().to_string();
+          let mut last_channel = String::from("");
+          if let Some(temp_channel) = parts.next() {
+            last_channel = temp_channel.to_string();
+          }
 
           let current_signal_level = last_signal_level.parse::<i8>().unwrap();
           let previous_signal_level= current_ssid.signal_level.parse::<i8>().unwrap();
