@@ -70,7 +70,7 @@ impl Connectivity for WiFi {
           let mut parts = line.split_whitespace();
           let temp = parts.next().unwrap().to_string();
           let in_use = false;
-          let mac = "";
+          let mac = String::from("");
           if (temp == "IN-USE") { continue; }
           else if (temp == "*") { in_use = true; mac = parts.next().unwrap().to_string(); }
           else                  { mac = temp; }
