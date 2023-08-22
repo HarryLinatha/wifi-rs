@@ -69,15 +69,15 @@ impl Connectivity for WiFi {
       for line in lines {
           let mut parts = line.split_whitespace();
           let temp = parts.next().unwrap().to_string();
-          let in_use = false;
-          let mac = String::from("");
+          let mut in_use = false;
+          let mut mac = String::from("");
           if (temp == "IN-USE") { continue; }
           else if (temp == "*") { in_use = true; mac = parts.next().unwrap().to_string(); }
           else                  { mac = temp; }
           let ssid = parts.next().unwrap().to_string();
           let channel = parts.next().unwrap().to_string();
           let signal_level = parts.next().unwrap().to_string();
-          let security = parts.next().unwrap().to_string();
+          let mut security = parts.next().unwrap().to_string();
           let alt_security = parts.next().unwrap().to_string();
           if (alt_security != "") { security = alt_security; }
           
