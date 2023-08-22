@@ -78,7 +78,8 @@ impl Connectivity for WiFi {
           let channel = parts.next().unwrap().to_string();
           let signal_level = parts.next().unwrap().to_string();
           let mut security = parts.next().unwrap().to_string();
-          let alt_security = parts.next().unwrap().to_string();
+          let mut alt_security = String::from("");
+          if let Ok(temp) = parts.next() { alt_security = temp.to_string(); }
           if (alt_security != "") { security = alt_security; }
           
           let availableWifi = AvailableWifi {
