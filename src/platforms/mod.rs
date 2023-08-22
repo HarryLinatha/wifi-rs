@@ -6,11 +6,11 @@ mod osx;
 mod windows;
 
 #[cfg(target_os = "linux")]
-pub use self::linux::{Connection, Linux as WiFi};
+pub use self::linux::{Connection, Linux as WiFi, AvailableWifi};
 #[cfg(target_os = "macos")]
-pub use self::osx::{Connection, Osx as WiFi};
+pub use self::osx::{Connection, Osx as WiFi, AvailableWifi};
 #[cfg(target_os = "windows")]
-pub use self::windows::{Connection, Windows as WiFi};
+pub use self::windows::{Connection, Windows as WiFi, AvailableWifi};
 
 use std::{fmt, io};
 

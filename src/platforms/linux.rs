@@ -6,9 +6,20 @@ pub struct Connection {
     pub(crate) ssid: String,
 }
 
+#[derive(Debug)]
+pub struct AvailableWifi {
+    pub ssid: String,
+    pub mac: String,
+    pub channel: String,
+    pub signal_level: String,
+    pub security: String,
+    pub in_use: bool,
+}
+
 /// Wireless network interface for linux operating system.
 #[derive(Debug)]
 pub struct Linux {
+    pub(crate) available_wifis: Vec<AvailableWifi>,
     pub(crate) connection: Option<Connection>,
     pub(crate) interface: String,
 }
@@ -16,6 +27,7 @@ pub struct Linux {
 impl Linux {
     pub fn new(config: Option<Config>) -> Self {
         Linux {
+            available_wifis: Vec::new(),
             connection: None,
             interface: config.map_or("wlan0".to_string(), |cfg| {
                 cfg.interface.unwrap_or("wlan0").to_string()

@@ -45,4 +45,9 @@ impl Connectivity for WiFi {
             .as_ref()
             .contains("disconnect"))
     }
+
+    // Scan for available networks.
+    fn scan() -> Result<Vec<AvailableWifi>, WifiError> {
+      Ok(Vec::new())
+    }
 }

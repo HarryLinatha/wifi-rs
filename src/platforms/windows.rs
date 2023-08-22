@@ -5,14 +5,24 @@ const WINDOWS_INTERFACE: &'static str = "Wireless Network Connection";
 
 #[derive(Debug)]
 pub struct Connection {
-    pub(crate) ssid: String,
+  pub(crate) ssid: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct AvailableWifi {
+    pub ssid: String,
+    pub mac: String,
+    pub channel: String,
+    pub signal_level: String,
+    pub security: String,
+    pub in_use: bool,
 }
 
 /// Wireless network interface for windows operating system.
 #[derive(Debug)]
 pub struct Windows {
-    pub(crate) connection: Option<Connection>,
-    pub(crate) interface: String,
+  pub(crate) connection: Option<Connection>,
+  pub(crate) interface: String,
 }
 
 impl Windows {

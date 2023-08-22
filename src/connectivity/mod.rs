@@ -5,6 +5,7 @@ mod providers;
 mod stubs;
 
 use crate::platforms::WifiError;
+use crate::platforms::AvailableWifi;
 use std::{fmt, io};
 
 /// Wireless network connectivity functionality.
@@ -14,6 +15,9 @@ pub trait Connectivity: fmt::Debug {
 
     /// Disconnects from a wireless network currently connected to.
     fn disconnect(&self) -> Result<bool, WifiConnectionError>;
+
+    /// Scan for available wifi networks.
+    fn scan(&self) -> Result<Vec<AvailableWifi>, WifiError>;
 }
 
 /// Error that occurs when attempting to connect to a wireless network.

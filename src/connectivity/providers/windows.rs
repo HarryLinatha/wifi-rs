@@ -1,6 +1,6 @@
 use crate::{
     connectivity::{handlers::NetworkXmlProfileHandler, Connectivity, WifiConnectionError},
-    platforms::{Connection, WiFi, WifiError, WifiInterface},
+    platforms::{Connection, WiFi, WifiError, WifiInterface, AvailableWifi},
 };
 use std::process::Command;
 
@@ -71,5 +71,91 @@ impl Connectivity for WiFi {
         Ok(String::from_utf8_lossy(&output.stdout)
             .as_ref()
             .contains("disconnect"))
+    }
+
+    fn scan(&self) -> Result<Vec<AvailableWifi>, WifiError> {
+      let mut available_wifis: Vec<AvailableWifi> = Vec::new();
+
+      let output = Command::new("netsh")
+        .args(&["wlan", "show", "networks", "mode=bssid"])
+        .output()
+        .map_err(|err| WifiError::IoError(err))?;
+
+      let output = String::from_utf8_lossy(&output.stdout);
+      let lines = output.lines();
+
+      let mut current_ssid = AvailableWifi {
+        ssid: String::from(""),
+        mac: String::from(""),
+        channel: String::from(""),
+        signal_level: String::from("0"),
+        security: String::from(""),
+        in_use: false,
+      };
+      let mut last_mac = String::from("");
+      let mut last_signal_level = String::from("");
+      for line in lines {
+        if line == "" {
+          if current_ssid.ssid != "" {
+            available_wifis.push(current_ssid.clone());
+          }
+
+          current_ssid = AvailableWifi {
+            ssid: String::from(""),
+            mac: String::from(""),
+            channel: String::from(""),
+            signal_level: String::from("0"),
+            security: String::from(""),
+            in_use: false,
+          };
+
+          continue;
+        }
+
+        let mut parts = line.split_whitespace();
+        if parts.clone().count() == 0 { continue; }
+
+        let first = parts.next().unwrap().to_string();
+        if first == "Interface" || first == "There" { continue; }
+
+        if first == "SSID" { //SSID 1 : MKM
+          parts.next(); //ssid_no
+          parts.next(); //colon symbols
+          current_ssid.ssid = parts.next().unwrap().to_string();
+        } else if first == "Network" { //Network type            : Infrastructure
+          continue;
+        } else if first == "Authentication" { //Authentication          : WPA2-Personal
+          parts.next(); //colon symbols
+          current_ssid.security = parts.next().unwrap().to_string();
+        } else if first == "Encryption" { //Encryption              : CCMP
+          continue;
+        } else if first == "BSSID" {
+          parts.next(); //ssid_no
+          parts.next(); //colon symbols
+          last_mac = parts.next().unwrap().to_string();
+        } else if first == "Signal" { //Signal             : 72%
+          parts.next(); //colon symbols
+          let temp_signal = parts.next().unwrap().to_string();
+          last_signal_level = temp_signal[..temp_signal.len() - 1].to_string();
+        } else if first == "Radio" { //Radio type         : 802.11ac
+          continue;
+        } else if first == "Channel" { //Channel            : 10
+          parts.next(); //colon symbols
+          let last_channel = parts.next().unwrap().to_string();
+
+          let current_signal_level = last_signal_level.parse::<i8>().unwrap();
+          let previous_signal_level= current_ssid.signal_level.parse::<i8>().unwrap();
+
+          if current_signal_level > previous_signal_level {
+            current_ssid.mac = last_mac.clone();
+            current_ssid.signal_level = last_signal_level.clone();
+            current_ssid.channel = last_channel;
+          }
+        } else {
+          continue;
+        }
+      }
+
+      Ok(available_wifis)
     }
 }

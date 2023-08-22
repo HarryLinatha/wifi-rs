@@ -6,6 +6,16 @@ pub struct Connection {
     pub(crate) ssid: String,
 }
 
+#[derive(Debug)]
+pub struct AvailableWifi {
+    pub(crate) ssid: String,
+    pub(crate) mac: String,
+    pub(crate) channel: String,
+    pub(crate) signal_level: String,
+    pub(crate) security: String,
+    pub(crate) in_use: bool,
+}
+
 /// Wireless network interface for mac operating system.
 #[derive(Debug)]
 pub struct Osx {
